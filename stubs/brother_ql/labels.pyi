@@ -3,14 +3,14 @@ from enum import IntEnum
 from typing import Any
 
 class FormFactor(IntEnum):
-    DIE_CUT: int
-    ENDLESS: int
-    ROUND_DIE_CUT: int
-    PTOUCH_ENDLESS: int
+    DIE_CUT = 1
+    ENDLESS = 2
+    ROUND_DIE_CUT = 3
+    PTOUCH_ENDLESS = 4
 
 class Color(IntEnum):
-    BLACK_WHITE: int
-    BLACK_RED_WHITE: int
+    BLACK_WHITE = 0
+    BLACK_RED_WHITE = 1
 
 class Label:
     identifier: str
