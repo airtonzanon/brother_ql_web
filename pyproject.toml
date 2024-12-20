@@ -12,7 +12,9 @@ version = "0.4.0"
 license = {text = "GPL-3.0-only"}
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
-    {name = "Philipp Klaus (initial)"},
+    {name = "Philipp Klaus"}
+]
+maintainers = [
     {name = "FriedrichFröbel"},
 ]
 classifiers = [
