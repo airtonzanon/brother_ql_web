@@ -223,6 +223,25 @@ class CreateLabelImageTestCase(TestCase):
                 for index, pixel in enumerate(difference.getdata()):
                     self.assertEqual((0, 0, 0), pixel, index)
 
+    def test_create_label_image__multiline_text(self) -> None:
+        parameters = labels.LabelParameters(
+            configuration=self.example_configuration,
+            font_family="DejaVu Serif",
+            font_style="Book",
+            text="Hello World!\r\n\nLorem ipsum",
+            label_size="62",
+        )
+        image = labels.create_label_image(parameters)
+        self.addCleanup(image.close)
+        reference = files("tests") / "data" / "multiline.png"
+        with as_file(reference) as path:
+            with Image.open(path) as target_image:
+                self.assertEqual(target_image.mode, image.mode)
+                self.assertEqual(target_image.size, image.size)
+                difference = ImageChops.difference(target_image, image)
+                for index, pixel in enumerate(difference.getdata()):
+                    self.assertEqual((0, 0, 0), pixel, index)
+
 
 class ImageToPngBytesTestCase(TestCase):
     def test_image_to_png_bytes(self) -> None:

@@ -171,7 +171,7 @@ def create_label_image(parameters: LabelParameters) -> Image.Image:
     # Workaround for a bug in multiline_textsize()
     # when there are empty lines in the text:
     lines = []
-    for line in parameters.text.split("\n"):
+    for line in parameters.text.splitlines(keepends=False):
         if line == "":
             line = " "
         lines.append(line)

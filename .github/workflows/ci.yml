@@ -28,7 +28,7 @@ jobs:
         sudo apt-get update
     - name: install APT dependencies
       run:
-        sudo apt-get install fonts-roboto
+        sudo apt-get install fonts-roboto fonts-dejavu
     - name: update PIP
       run:
         python -m pip install --upgrade pip
