@@ -1,6 +1,9 @@
 # Development version
 
+# Version 0.5.0 - 2024-12-22
+
 * Migrate away from `brother_ql.devicedependent`.
+* Fix rendering of multiline text for some fonts which do not omit carriage returns by default.
 
 # Version 0.4.0 - 2024-10-17
 
