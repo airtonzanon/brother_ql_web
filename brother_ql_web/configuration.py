@@ -72,7 +72,7 @@ class LabelConfiguration:
 
     def __post_init__(self) -> None:
         self.default_fonts = [
-            font if isinstance(font, Font) else Font(**font)  # type: ignore[arg-type]
+            font if isinstance(font, Font) else Font(**font)
             for font in self.default_fonts
         ]
 
