@@ -7,7 +7,8 @@
   },
   "printer": {
     "model": "QL-500",
-    "printer": "file:///dev/usb/lp1"
+    "printer": "file:///dev/usb/lp1",
+    "black_and_white_printer": true
   },
   "label": {
     "default_size": "62",

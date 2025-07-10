@@ -54,6 +54,7 @@ class ServerConfiguration:
 class PrinterConfiguration:
     model: str
     printer: str
+    black_and_white_printer: bool = True
 
 
 @dataclass(frozen=True)

@@ -149,14 +149,24 @@ def _determine_text_offsets(
             ) // 2
         else:
             vertical_offset = parameters.margin_top_scaled
-        horizontal_offset = max((width - text_width) // 2, 0)
+        if parameters.align == "left":
+            horizontal_offset = parameters.margin_left_scaled
+        elif parameters.align == "right":
+            horizontal_offset = max(width - text_width - parameters.margin_right_scaled, 0)
+        else:  # center (default)
+            horizontal_offset = max((width - text_width) // 2, parameters.margin_left_scaled)
     elif parameters.orientation == "rotated":
         vertical_offset = (height - text_height) // 2
         vertical_offset += (
             parameters.margin_top_scaled - parameters.margin_bottom_scaled
         ) // 2
         if parameters.kind in (FormFactor.DIE_CUT, FormFactor.ROUND_DIE_CUT):
-            horizontal_offset = max((width - text_width) // 2, 0)
+            if parameters.align == "left":
+                horizontal_offset = parameters.margin_left_scaled
+            elif parameters.align == "right":
+                horizontal_offset = max(width - text_width - parameters.margin_right_scaled, 0)
+            else:
+                horizontal_offset = max((width - text_width) // 2, parameters.margin_left_scaled)
         else:
             horizontal_offset = parameters.margin_left_scaled
     return horizontal_offset, vertical_offset
@@ -164,7 +174,14 @@ def _determine_text_offsets(
 
 def create_label_image(parameters: LabelParameters) -> Image.Image:
     if parameters.image:
-        return Image.open(BytesIO(parameters.image))
+        image = Image.open(BytesIO(parameters.image))
+
+        if parameters.configuration.printer.black_and_white_printer:
+            image = image.convert('L')
+            bw = image.point(lambda x: 255 if x > parameters.threshold * 255 / 100 else 0, mode='1')
+            return bw
+        else:
+            return image
 
     image_font = ImageFont.truetype(parameters.font_path, parameters.font_size)
 
@@ -219,9 +236,6 @@ def generate_label(
         rotate = 0 if parameters.orientation == "standard" else 90
     elif parameters.kind in (FormFactor.DIE_CUT, FormFactor.ROUND_DIE_CUT):
         rotate = "auto"
-
-    if parameters.high_quality:
-        logger.warning("High quality mode is not implemented for now.")
 
     qlr = BrotherQLRaster(configuration.printer.model)
     create_label(

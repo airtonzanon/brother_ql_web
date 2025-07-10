@@ -134,6 +134,20 @@ def get_preview_image() -> bytes:
         return image_to_png_bytes(image)
 
 
+@bottle.post("/api/preview/image")  # type: ignore[misc]
+def get_preview_image_file() -> bytes:
+    parameters = get_label_parameters(bottle.request, should_be_file=True)
+    image = create_label_image(parameters=parameters)
+    return_format = bottle.request.query.get("return_format", "png")
+    if return_format == "base64":
+        import base64
+        bottle.response.set_header("Content-type", "text/plain")
+        return base64.b64encode(image_to_png_bytes(image))
+    else:
+        bottle.response.set_header("Content-type", "image/png")
+        return image_to_png_bytes(image)
+
+
 @bottle.post("/api/print/text")  # type: ignore[misc]
 @bottle.get("/api/print/text")  # type: ignore[misc]
 def print_text() -> dict[str, bool | str]:

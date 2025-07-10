@@ -152,6 +152,15 @@
             <fieldset class="form-group">
                 <label for="labelText">Label Text:</label>
                 <textarea rows="7" id="labelText" class="form-control" onChange="preview()" onInput="preview()"></textarea>
+                <!-- Image Upload Feature -->
+                <label for="labelImage" style="margin-top: 1em;">Or select an image to print:</label>
+                <input type="file" id="labelImage" class="form-control" accept="image/*">
+                <button id="previewImageButton" type="button" class="btn btn-info btn-block btn-lg" style="margin-top: 0.5em;" onClick="previewImage()">
+                  <span class="bi-eye" aria-hidden="true"></span> Preview Image
+                </button>
+                <button id="printImageButton" type="button" class="btn btn-secondary btn-block btn-lg" style="margin-top: 0.5em;" onClick="printImage()">
+                  <span class="bi-image" aria-hidden="true"></span> Print Image
+                </button>
             </fieldset>
         </div>
         <div class="col-md-4">
@@ -195,6 +204,37 @@
 
     function isChecked(id) {
         return document.getElementById(id).checked;
+    }
+
+    function buildImageFormData(imageFile) {
+        const labelSize = getSelectedOption('labelSize');
+        const orientation = getSelectedRadioButton('orientation', 'standard');
+        const marginTop = getValue('marginTop');
+        const marginBottom = getValue('marginBottom');
+        const marginLeft = getValue('marginLeft');
+        const marginRight = getValue('marginRight');
+        const labelCount = getValue('labelCount');
+        const highQuality = isChecked('highQuality');
+
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        formData.append('label_size', labelSize);
+        formData.append('orientation', orientation);
+        formData.append('margin_top', marginTop);
+        formData.append('margin_bottom', marginBottom);
+        formData.append('margin_left', marginLeft);
+        formData.append('margin_right', marginRight);
+        formData.append('label_count', labelCount);
+        formData.append('high_quality', highQuality);
+        return formData;
+    }
+
+    function makeImageRequest(url, formData, onSuccess, onError) {
+        const request = new XMLHttpRequest();
+        request.addEventListener('load', onSuccess);
+        request.addEventListener('error', onError);
+        request.open('POST', url);
+        request.send(formData);
     }
 
     function formData() {
@@ -298,6 +338,51 @@
         request.open('POST', '/api/print/text');
         request.setRequestHeader('Accept', 'application/x-www-form-urlencoded; charset=UTF-8');
         request.send(formData());
+    }
+
+    function printImage() {
+        const imageInput = document.getElementById('labelImage');
+        if (!imageInput.files || imageInput.files.length === 0) {
+            alert('Please select an image file to print.');
+            return;
+        }
+
+        const formData = buildImageFormData(imageInput.files[0]);
+        document.getElementById('printImageButton').setAttribute('disabled', true);
+        document.getElementById('statusPanel').innerHTML = '<div id="statusBox" class="alert alert-info" role="alert"><i class="bi-hourglass"></i><span>Processing image print request...</span></div>';
+
+        makeImageRequest(
+            '/api/print/image',
+            formData,
+            function() {
+                setStatus(JSON.parse(this.response));
+                document.getElementById('printImageButton').removeAttribute('disabled');
+            },
+            function() {
+                setStatus({success: false, message: 'Network error'});
+                document.getElementById('printImageButton').removeAttribute('disabled');
+            }
+        );
+    }
+
+    function previewImage() {
+        const imageInput = document.getElementById('labelImage');
+        if (!imageInput.files || imageInput.files.length === 0) {
+            alert('Please select an image file to preview.');
+            return;
+        }
+
+        const formData = buildImageFormData(imageInput.files[0]);
+        makeImageRequest(
+            '/api/preview/image?return_format=base64',
+            formData,
+            function() {
+                setPreviewImage({response: this.responseText});
+            },
+            function() {
+                alert('Error loading preview');
+            }
+        );
     }
 
     preview();
