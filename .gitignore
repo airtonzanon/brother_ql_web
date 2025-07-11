@@ -112,3 +112,7 @@ venv.bak/
 
 # idea
 .idea/*
+
+# venv
+bin
+pyvenv.cfg
