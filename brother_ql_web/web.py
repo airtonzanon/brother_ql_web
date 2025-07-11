@@ -112,6 +112,7 @@ def get_label_parameters(
         "margin_right": int(d.get("margin_right", 35)),
         "label_count": int(d.get("label_count", 1)),
         "high_quality": bool(d.get("high_quality", False)),  # TODO: Enable by default.
+        "vertical_align": d.get("vertical_align", "center"),
         "configuration": request.app.config["brother_ql_web.configuration"],
     }
 

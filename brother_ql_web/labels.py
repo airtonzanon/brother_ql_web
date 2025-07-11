@@ -30,6 +30,7 @@ class LabelParameters:
     margin: int = 10
     threshold: int = 70
     align: str = "center"
+    vertical_align: str = "center"
     orientation: str = "standard"
     margin_top: int = 24
     margin_bottom: int = 45
@@ -141,14 +142,15 @@ def _determine_text_offsets(
     text_width: int,
     parameters: LabelParameters,
 ) -> tuple[int, int]:
+    # Vertical alignment logic (respects margins)
+    if parameters.vertical_align == "top":
+        vertical_offset = parameters.margin_top_scaled
+    elif parameters.vertical_align == "bottom":
+        vertical_offset = height - parameters.margin_bottom_scaled - text_height
+    else:  # center
+        vertical_offset = parameters.margin_top_scaled + ((height - parameters.margin_top_scaled - parameters.margin_bottom_scaled - text_height) // 2)
+    # Horizontal alignment logic (existing)
     if parameters.orientation == "standard":
-        if parameters.kind in (FormFactor.DIE_CUT, FormFactor.ROUND_DIE_CUT):
-            vertical_offset = (height - text_height) // 2
-            vertical_offset += (
-                parameters.margin_top_scaled - parameters.margin_bottom_scaled
-            ) // 2
-        else:
-            vertical_offset = parameters.margin_top_scaled
         if parameters.align == "left":
             horizontal_offset = parameters.margin_left_scaled
         elif parameters.align == "right":
@@ -156,19 +158,12 @@ def _determine_text_offsets(
         else:  # center (default)
             horizontal_offset = max((width - text_width) // 2, parameters.margin_left_scaled)
     elif parameters.orientation == "rotated":
-        vertical_offset = (height - text_height) // 2
-        vertical_offset += (
-            parameters.margin_top_scaled - parameters.margin_bottom_scaled
-        ) // 2
-        if parameters.kind in (FormFactor.DIE_CUT, FormFactor.ROUND_DIE_CUT):
-            if parameters.align == "left":
-                horizontal_offset = parameters.margin_left_scaled
-            elif parameters.align == "right":
-                horizontal_offset = max(width - text_width - parameters.margin_right_scaled, 0)
-            else:
-                horizontal_offset = max((width - text_width) // 2, parameters.margin_left_scaled)
-        else:
+        if parameters.align == "left":
             horizontal_offset = parameters.margin_left_scaled
+        elif parameters.align == "right":
+            horizontal_offset = max(width - text_width - parameters.margin_right_scaled, 0)
+        else:
+            horizontal_offset = max((width - text_width) // 2, parameters.margin_left_scaled)
     return horizontal_offset, vertical_offset
 
 

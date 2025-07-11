@@ -73,6 +73,18 @@
                                             <input type="radio" name="fontAlign" onchange="preview()" value="right" aria-label="Right Align"><span class="bi-text-right" aria-hidden="true"></span>
                                         </label>
                                     </div>
+                                    <label for="fontVerticalAlign" class="control-label input-group" style="margin-top: 0.5em;">Vertical Alignment:</label>
+                                    <div class="btn-group" data-toggle="buttons">
+                                        <label class="btn btn-default">
+                                            <input type="radio" name="fontVerticalAlign" onchange="preview()" value="top" aria-label="Top Align"><span class="bi-arrow-up" aria-hidden="true"></span>
+                                        </label>
+                                        <label class="btn btn-default active">
+                                            <input type="radio" name="fontVerticalAlign" onchange="preview()" value="center" aria-label="Middle Align" checked><span class="bi-arrow-down-up" aria-hidden="true"></span>
+                                        </label>
+                                        <label class="btn btn-default">
+                                            <input type="radio" name="fontVerticalAlign" onchange="preview()" value="bottom" aria-label="Bottom Align"><span class="bi-arrow-down" aria-hidden="true"></span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -215,6 +227,7 @@
         const marginRight = getValue('marginRight');
         const labelCount = getValue('labelCount');
         const highQuality = isChecked('highQuality');
+        const verticalAlign = getSelectedRadioButton('fontVerticalAlign', 'center');
 
         const formData = new FormData();
         formData.append('image', imageFile);
@@ -226,6 +239,7 @@
         formData.append('margin_right', marginRight);
         formData.append('label_count', labelCount);
         formData.append('high_quality', highQuality);
+        formData.append('vertical_align', verticalAlign);
         return formData;
     }
 
@@ -253,6 +267,7 @@
         const marginRight = getValue('marginRight');
         const labelCount = getValue('labelCount');
         const highQuality = isChecked('highQuality');
+        const verticalAlign = getSelectedRadioButton('fontVerticalAlign', 'center');
 
         const data = new FormData();
         data.append('text', text);
@@ -267,6 +282,7 @@
         data.append('margin_right', marginRight);
         data.append('label_count', labelCount);
         data.append('high_quality', highQuality);
+        data.append('vertical_align', verticalAlign);
         return data;
     }
 
