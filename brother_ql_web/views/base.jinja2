@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="/static/css/bootstrap-icons.min.css">
         <link rel="stylesheet" href="/static/css/custom.css">
 
-        <title>{{ website.html_title }} | Brother QL</title>
+        <title>{{ printer_model }} | Brother QL</title>
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -22,7 +22,11 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="/">{{ website.page_title }}</a>
+                    <a class="navbar-brand d-flex align-items-center" href="/">
+                        <span class="bi-printer" style="font-size: 1.3em; margin-right: 0.4em;"></span>
+                        <span>{{ printer_model }}</span>
+                        <span class="badge bg-info text-dark ms-2" style="font-size: 0.9em;">{{ printer_name }}</span>
+                    </a>
                 </div>
             </div>
         </nav>

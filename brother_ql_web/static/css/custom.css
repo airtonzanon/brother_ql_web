@@ -48,3 +48,81 @@ textarea#labelText {
         font-size: 63px
     }
 }
+
+/* --- UI Enhancements for Label Designer --- */
+.card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07), 0 1.5px 4px rgba(0,0,0,0.06);
+    border-radius: 10px;
+    margin-bottom: 1.5em;
+    border: 1px solid #e3e3e3;
+}
+.card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e3e3e3;
+    border-radius: 10px 10px 0 0;
+    padding: 0.75em 1.25em;
+}
+.card-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #333;
+}
+.card-body {
+    background: #fff;
+    padding: 1.25em;
+}
+fieldset.form-group {
+    margin-bottom: 2em;
+    padding: 1.5em 1em 1em 1em;
+    background: #f7f7fa;
+    border-radius: 12px;
+    border: 1px solid #e3e3e3;
+}
+label, .control-label {
+    font-weight: 500;
+    margin-top: 0.5em;
+    margin-bottom: 0.2em;
+    color: #222;
+}
+input.form-control, select.form-control, textarea.form-control {
+    border-radius: 6px;
+    border: 1px solid #bdbdbd;
+    margin-bottom: 0.7em;
+    font-size: 1em;
+}
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+.btn-block {
+    width: 100%;
+    margin-top: 0.5em;
+}
+.btn-lg {
+    padding: 0.7em 1.2em;
+    font-size: 1.1em;
+}
+#previewImg {
+    border: 2px solid #888;
+    border-radius: 8px;
+    background: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 1em;
+    padding: 0.5em;
+}
+#statusPanel {
+    background: #f8f8fa;
+    border-radius: 0 0 10px 10px;
+    border-top: 1px solid #e3e3e3;
+    padding: 1em;
+    font-size: 1em;
+    color: #444;
+}
+.chooser label {
+    margin-top: 0.7em;
+    margin-bottom: 0.2em;
+}
+.chooser .input-group {
+    margin-bottom: 0.7em;
+}

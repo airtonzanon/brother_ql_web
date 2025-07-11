@@ -47,11 +47,6 @@ CUSTOM_CONFIGURATION = """
       }
     ],
     "default_font": null
-  },
-  "website": {
-    "html_title": "Label Designer",
-    "page_title": "Brother QL Label Designer",
-    "page_headline": "Design your label and print it!"
   }
 }
 """
@@ -97,14 +92,6 @@ class ConfigurationTestCase(TestCase):
                     default_font=None,
                 ),
                 configuration.label,
-            )
-            self.assertEqual(
-                WebsiteConfiguration(
-                    html_title="Label Designer",
-                    page_title="Brother QL Label Designer",
-                    page_headline="Design your label and print it!",
-                ),
-                configuration.website,
             )
 
     def test_from_json__too_many_keys(self) -> None:
@@ -182,7 +169,3 @@ class LabelConfigurationTestCase(TestCase):
             ],
             configuration.default_fonts,
         )
-
-
-class WebsiteConfigurationTestCase(TestCase):
-    pass

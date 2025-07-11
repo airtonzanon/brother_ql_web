@@ -10,7 +10,7 @@ class Configuration:
     server: ServerConfiguration
     printer: PrinterConfiguration
     label: LabelConfiguration
-    website: WebsiteConfiguration
+    # Removed: website: WebsiteConfiguration
 
     @classmethod
     def from_json(cls, json_file: str) -> Configuration:
@@ -30,6 +30,8 @@ class Configuration:
             else:
                 instance = field_class(**kwargs_inner)
             kwargs[name] = instance
+        # Remove website from parsed if present
+        parsed.pop("website", None)
         if parsed:
             raise ValueError(f"Unknown configuration values: {parsed}")
         return cls(**kwargs)
@@ -76,10 +78,3 @@ class LabelConfiguration:
             font if isinstance(font, Font) else Font(**font)
             for font in self.default_fonts
         ]
-
-
-@dataclass
-class WebsiteConfiguration:
-    html_title: str = "Label Designer"
-    page_title: str = "Brother QL Label Designer"
-    page_headline: str = "Design your label and print it…"

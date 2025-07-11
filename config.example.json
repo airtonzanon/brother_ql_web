@@ -19,10 +19,5 @@
       {"family": "Linux Libertine", "style": "Regular"},
       {"family": "DejaVu Serif",    "style": "Book"}
     ]
-  },
-  "website": {
-    "html_title": "Label Designer",
-    "page_title": "Brother QL Label Designer",
-    "page_headline": "Design your label and print it…"
   }
 }

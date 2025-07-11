@@ -49,9 +49,10 @@ def labeldesigner() -> dict[str, Any]:
         "font_family_names": font_family_names,
         "fonts": fonts,
         "label_sizes": get_config("brother_ql_web.label_sizes"),
-        "website": configuration.website,
         "label": configuration.label,
         "default_orientation": configuration.label.default_orientation,
+        "printer_model": configuration.printer.model,
+        "printer_name": configuration.printer.printer,
     }
 
 

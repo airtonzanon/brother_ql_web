@@ -1,195 +1,118 @@
 {% extends "base.jinja2" %}
 
 {% block page_title %}
-    {{ title }}
-{% endblock %}
-
-{% block jumbotron %}
-    <h1>{{ website.page_title }}</h1>
-    <p>{{ website.page_headline }}</p>
+    Label Designer
 {% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-4">
-            <fieldset class="form-group">
-                <div class="card-group" id="accordion">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header" id="headingLabelSize">
-                                <h4 class="card-title">
-                                    <button class="btn" data-bs-toggle="collapse" data-bs-target="#collapseLabelSize" aria-expanded="false" aria-controls="collapseLabelSize">
-                                        <span class="bi-file-earmark-fill" aria-hidden="true"></span> Label Size
-                                    </button>
-                                </h4>
-                            </div>
-                            <div id="collapseLabelSize" class="collapse" aria-labelledby="headingLabelSize" data-parent="#accordion">
-                                <div class="chooser card-body">
-                                    <label for="labelSize" style="display: none">Label Size:</label>
-                                    <select class="form-control" id="labelSize" onChange="preview()">
-                                            {% for label_size in label_sizes %}<option value="{{label_size[0]}}" {% if label.default_size == label_size[0] %}selected{% endif %}>{{label_size[1]}}</option>{% endfor %}
-                                        </select>
-                                    <label for="orientation" style="margin-top: 10px; margin-bottom: 0">Label Orientation:</label>
-                                    <div class="radio" style="margin-top: 5px;">
-                                        <label><input type="radio" onchange="preview()" name="orientation" value="standard" {% if default_orientation == 'standard' %}checked{% endif %}>Standard</label>
-                                    </div>
-                                    <div class="radio">
-                                        <label><input type="radio" onchange="preview()" name="orientation" value="rotated" {% if default_orientation == 'rotated' %}checked{% endif %}>Rotated</label>
-                                    </div>
-                                </div>
-                            </div>
+    <div class="row g-4" style="margin-top: 1.5em;">
+        <!-- Left: Label Settings -->
+        <div class="col-lg-3 col-md-4">
+            <div class="card mb-4">
+                <div class="card-header"><span class="bi-gear"></span> Label Settings</div>
+                <div class="card-body">
+                    <label for="labelSize">Label Size</label>
+                    <select class="form-control mb-2" id="labelSize" onChange="preview()">
+                        {% for label_size in label_sizes %}<option value="{{label_size[0]}}" {% if label.default_size == label_size[0] %}selected{% endif %}>{{label_size[1]}}</option>{% endfor %}
+                    </select>
+                    <label for="orientation">Orientation</label>
+                    <div class="btn-group w-100 mb-2" role="group">
+                        <input type="radio" class="btn-check" name="orientation" id="orientationStandard" value="standard" autocomplete="off" onchange="preview()" {% if default_orientation == 'standard' %}checked{% endif %}>
+                        <label class="btn btn-outline-secondary" for="orientationStandard">Standard</label>
+                        <input type="radio" class="btn-check" name="orientation" id="orientationRotated" value="rotated" autocomplete="off" onchange="preview()" {% if default_orientation == 'rotated' %}checked{% endif %}>
+                        <label class="btn btn-outline-secondary" for="orientationRotated">Rotated</label>
+                    </div>
+                    <label for="fontFamily">Font Family</label>
+                    <select class="form-control mb-2" id="fontFamily" onChange="preview()">
+                        {% for font_family_name in font_family_names %}
+                            {% for font_style in fonts[font_family_name].keys() %}
+                        <option {% if label.default_font.style == font_style and label.default_font.family == font_family_name %}selected{% endif %}>{{font_family_name}} ({{ font_style }})</option>
+                            {% endfor %}
+                        {% endfor %}
+                    </select>
+                    <label for="fontSize">Font Size</label>
+                    <input id="fontSize" class="form-control mb-2" type="number" min="1" value="{{ label.default_font_size }}" onChange="preview()" required>
+                    <label>Font Alignment</label>
+                    <div class="btn-group w-100 mb-2" role="group">
+                        <input type="radio" class="btn-check" name="fontAlign" id="alignLeft" value="left" autocomplete="off" onchange="preview()">
+                        <label class="btn btn-outline-secondary" for="alignLeft"><span class="bi-text-left"></span></label>
+                        <input type="radio" class="btn-check" name="fontAlign" id="alignCenter" value="center" autocomplete="off" onchange="preview()" checked>
+                        <label class="btn btn-outline-secondary" for="alignCenter"><span class="bi-text-center"></span></label>
+                        <input type="radio" class="btn-check" name="fontAlign" id="alignRight" value="right" autocomplete="off" onchange="preview()">
+                        <label class="btn btn-outline-secondary" for="alignRight"><span class="bi-text-right"></span></label>
+                    </div>
+                    <label>Vertical Alignment</label>
+                    <div class="btn-group w-100 mb-2" role="group">
+                        <input type="radio" class="btn-check" name="fontVerticalAlign" id="valignTop" value="top" autocomplete="off" onchange="preview()">
+                        <label class="btn btn-outline-secondary" for="valignTop"><span class="bi-arrow-up"></span></label>
+                        <input type="radio" class="btn-check" name="fontVerticalAlign" id="valignCenter" value="center" autocomplete="off" onchange="preview()" checked>
+                        <label class="btn btn-outline-secondary" for="valignCenter"><span class="bi-arrow-down-up"></span></label>
+                        <input type="radio" class="btn-check" name="fontVerticalAlign" id="valignBottom" value="bottom" autocomplete="off" onchange="preview()">
+                        <label class="btn btn-outline-secondary" for="valignBottom"><span class="bi-arrow-down"></span></label>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="marginTop">Margin Top</label>
+                            <input id="marginTop" class="form-control mb-2" type="number" min="0" max="200" value="24" onChange="preview()" required>
+                        </div>
+                        <div class="col-6">
+                            <label for="marginBottom">Margin Bottom</label>
+                            <input id="marginBottom" class="form-control mb-2" type="number" min="0" max="200" value="45" onChange="preview()" required>
+                        </div>
+                        <div class="col-6">
+                            <label for="marginLeft">Margin Left</label>
+                            <input id="marginLeft" class="form-control mb-2" type="number" min="0" max="200" value="35" onChange="preview()" required>
+                        </div>
+                        <div class="col-6">
+                            <label for="marginRight">Margin Right</label>
+                            <input id="marginRight" class="form-control mb-2" type="number" min="0" max="200" value="35" onChange="preview()" required>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title" id="headingFontSettings">
-                                    <button class="btn" data-bs-toggle="collapse" data-bs-target="#collapseFontSettings" aria-expanded="true" aria-controls="collapseFontSettings">
-                                        <span class="bi-fonts" aria-hidden="true"></span> Font Settings
-                                    </button>
-                                </h4>
-                            </div>
-                            <div id="collapseFontSettings" class="collapse show" aria-labelledby="headingFontSettings" data-parent="#accordion">
-                                <div class="chooser card-body">
-                                    <label for="fontFamily">Font Family:</label>
-                                    <select class="form-control" id="fontFamily" onChange="preview()">
-                                        {% for font_family_name in font_family_names %}
-                                            {% for font_style in fonts[font_family_name].keys() %}
-                                        <option {% if label.default_font.style == font_style and label.default_font.family == font_family_name %}selected{% endif %}>{{font_family_name}} ({{ font_style }})</option>
-                                            {% endfor %}
-                                        {% endfor %}
-                                    </select>
-                                    <label for="fontSize">Font Size:</label>
-                                    <input id="fontSize" class="form-control" type="number" min="1" value="{{ label.default_font_size }}" onChange="preview()" required>
-                                    <label for="fontAlign" class="control-label input-group">Font Alignment:</label>
-                                    <div class="btn-group" data-toggle="buttons">
-                                        <label class="btn btn-default">
-                                            <input type="radio" name="fontAlign" onchange="preview()" value="left" aria-label="Left Align"><span class="bi-text-left" aria-hidden="true"></span>
-                                        </label>
-                                        <label class="btn btn-default active">
-                                            <input type="radio" name="fontAlign" onchange="preview()" value="center" aria-label="Center Align" checked=""><span class="bi-text-center" aria-hidden="true"></span>
-                                        </label>
-                                        <label class="btn btn-default">
-                                            <input type="radio" name="fontAlign" onchange="preview()" value="right" aria-label="Right Align"><span class="bi-text-right" aria-hidden="true"></span>
-                                        </label>
-                                    </div>
-                                    <label for="fontVerticalAlign" class="control-label input-group" style="margin-top: 0.5em;">Vertical Alignment:</label>
-                                    <div class="btn-group" data-toggle="buttons">
-                                        <label class="btn btn-default">
-                                            <input type="radio" name="fontVerticalAlign" onchange="preview()" value="top" aria-label="Top Align"><span class="bi-arrow-up" aria-hidden="true"></span>
-                                        </label>
-                                        <label class="btn btn-default active">
-                                            <input type="radio" name="fontVerticalAlign" onchange="preview()" value="center" aria-label="Middle Align" checked><span class="bi-arrow-down-up" aria-hidden="true"></span>
-                                        </label>
-                                        <label class="btn btn-default">
-                                            <input type="radio" name="fontVerticalAlign" onchange="preview()" value="bottom" aria-label="Bottom Align"><span class="bi-arrow-down" aria-hidden="true"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header" id="headingDetailedSettings">
-                                <h4 class="card-title">
-                                    <button class="btn" data-bs-toggle="collapse" data-bs-target="#collapseDetailedSettings" aria-expanded="false" aria-controls="collapseDetailedSettings">
-                                        <span class="bi-gear-fill" aria-hidden="true"></span> Detailed Settings
-                                    </button>
-                                </h4>
-                            </div>
-                            <div id="collapseDetailedSettings" class="collapse" aria-labelledby="headingDetailedSettings" data-parent="#accordion">
-                                <div class="chooser card-body">
-                                    <label for="marginTop">Margin Top:</label>
-                                    <div class="input-group marginsTopBottom">
-                                        <input id="marginTop" class="form-control marginsTopBottom" type="number" min="0" max="200" value="24" onChange="preview()" required> <span class="input-group-addon">%</span>
-                                    </div>
-                                    <label for="marginBottom">Margin Bottom:</label>
-                                    <div class="input-group marginsTopBottom">
-                                        <input id="marginBottom" class="form-control marginsTopBottom" type="number" min="0" max="200" value="45" onChange="preview()" required> <span class="input-group-addon">%</span>
-                                    </div>
-                                    <label for="marginLeft">Margin Left:</label>
-                                    <div class="input-group marginsLeftRight">
-                                        <input id="marginLeft" class="form-control marginsLeftRight" type="number" min="0" max="200" value="35" onChange="preview()" required> <span class="input-group-addon">%</span>
-                                    </div>
-                                    <label for="marginRight">Margin Right:</label>
-                                    <div class="input-group marginsLeftRight">
-                                        <input id="marginRight" class="form-control marginsLeftRight" type="number" min="0" max="200" value="35" onChange="preview()" required> <span class="input-group-addon">%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <label for="labelCount">Label Count</label>
+                    <input id="labelCount" class="form-control mb-2" type="number" min="1" max="200" value="1" required>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" name="highQuality" id="highQuality" onchange="preview()" checked="checked">
+                        <label class="form-check-label" for="highQuality">High Quality</label>
                     </div>
                 </div>
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header" id="headingAmount">
-                            <h4 class="card-title">
-                                <button class="btn" data-bs-toggle="collapse" data-bs-target="#collapseAmount" aria-expanded="false" aria-controls="collapseAmount">
-                                    <span class="bi-repeat" aria-hidden="true"></span> Amount
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="collapseAmount" class="collapse" aria-labelledby="headingAmount" data-parent="#accordion">
-                            <div class="chooser card-body">
-                                <label for="labelCount">Label Count:</label>
-                                <div class="input-group labelCount">
-                                    <input id="labelCount" class="form-control" type="number" min="1" max="200" value="1" required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header" id="headingQuality">
-                            <h4 class="card-title">
-                                <button class="btn" data-bs-toggle="collapse" data-bs-target="#collapseQuality" aria-expanded="false" aria-controls="collapseQuality">
-                                    <span class="bi-badge-hd-fill" aria-hidden="true"></span> Quality
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="collapseQuality" class="collapse" aria-labelledby="headingQuality" data-parent="#accordion">
-                            <div class="chooser card-body">
-                                <label class="btn">
-                                    <input type="checkbox" name="highQuality" id="highQuality" onchange="preview()" aria-label="High Quality" checked="checked"> High Quality
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
+            </div>
         </div>
-        <div class="col-md-4">
-            <fieldset class="form-group">
-                <label for="labelText">Label Text:</label>
-                <textarea rows="7" id="labelText" class="form-control" onChange="preview()" onInput="preview()"></textarea>
-                <!-- Image Upload Feature -->
-                <label for="labelImage" style="margin-top: 1em;">Or select an image to print:</label>
-                <input type="file" id="labelImage" class="form-control" accept="image/*">
-                <button id="previewImageButton" type="button" class="btn btn-info btn-block btn-lg" style="margin-top: 0.5em;" onClick="previewImage()">
-                  <span class="bi-eye" aria-hidden="true"></span> Preview Image
-                </button>
-                <button id="printImageButton" type="button" class="btn btn-secondary btn-block btn-lg" style="margin-top: 0.5em;" onClick="printImage()">
-                  <span class="bi-image" aria-hidden="true"></span> Print Image
-                </button>
-            </fieldset>
-        </div>
-        <div class="col-md-4">
-            <fieldset class="form-group">
-                <label for="previewImg">Label Preview:</label><br />
-                <img id="previewImg" style="border: 1px solid #444; max-height: 350px; width: auto; max-width: 100%; margin-bottom: 10px;" />
-                <p>Printed size w/o margins: <span id="labelWidth">?</span> cm x <span id="labelHeight">?</span> cm</p>
-                <button id="printButton" type="button" class="btn btn-primary btn-block btn-lg" onClick="print()">
-              <span class="bi-printer-fill" aria-hidden="true"></span> Print
-            </button>
-            </fieldset>
-            <div class="card card-default">
-                <div class="card-header">
-                    <h3 class="card-title"><span class="bi-journal" aria-hidden="true" style="margin-right: 0.3em"></span> Status</h3>
+        <!-- Center: Preview -->
+        <div class="col-lg-6 col-md-8 order-lg-2 order-md-2 order-1 d-flex flex-column align-items-center">
+            <div class="card mb-4 w-100" style="max-width: 500px; margin: 0 auto;">
+                <div class="card-header"><span class="bi-eye"></span> Label Preview</div>
+                <div class="card-body d-flex flex-column align-items-center">
+                    <img id="previewImg" style="border: 1px solid #444; max-height: 350px; width: auto; max-width: 100%; margin-bottom: 10px; background: #fff;" />
+                    <p class="mb-1">Printed size w/o margins: <span id="labelWidth">?</span> cm x <span id="labelHeight">?</span> cm</p>
                 </div>
+            </div>
+            <div class="card card-default w-100" style="max-width: 500px; margin: 0 auto;">
+                <div class="card-header"><span class="bi-journal"></span> Status</div>
                 <div id="statusPanel" class="card-body">
                     - undefined -
+                </div>
+            </div>
+        </div>
+        <!-- Right: Input & Actions -->
+        <div class="col-lg-3 col-md-12 order-lg-3 order-md-3 order-2">
+            <div class="card mb-4">
+                <div class="card-header"><span class="bi-pencil"></span> Label Content</div>
+                <div class="card-body">
+                    <label for="labelText">Label Text</label>
+                    <textarea rows="7" id="labelText" class="form-control mb-2" onChange="preview()" onInput="preview()"></textarea>
+                    <label for="labelImage" style="margin-top: 1em;">Or select an image to print:</label>
+                    <input type="file" id="labelImage" class="form-control mb-2" accept="image/*">
+                    <div class="d-grid gap-2 mt-3">
+                        <button id="previewImageButton" type="button" class="btn btn-info btn-lg mb-2" onClick="previewImage()">
+                            <span class="bi-eye"></span> Preview Image
+                        </button>
+                        <button id="printImageButton" type="button" class="btn btn-secondary btn-lg mb-2" onClick="printImage()">
+                            <span class="bi-image"></span> Print Image
+                        </button>
+                        <button id="printButton" type="button" class="btn btn-primary btn-lg" onClick="print()">
+                            <span class="bi-printer-fill"></span> Print Text
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
