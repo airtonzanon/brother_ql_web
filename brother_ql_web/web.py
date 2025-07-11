@@ -68,23 +68,21 @@ def _save_to_bytes(upload: bottle.FileUpload | None) -> bytes | None:
 def get_label_parameters(
     request: bottle.BaseRequest, should_be_file: bool = False
 ) -> LabelParameters:
-    # As we have strings, *bottle* would try to generate Latin-1 bytes from it
-    # before decoding it back to UTF-8. This seems to break some umlauts, thus
-    # resulting in UnicodeEncodeErrors being raised when going back to UTF-8.
-    # For now, we just state that we always receive clean UTF-8 data and thus
-    # the recode operations just can be omitted. All external API users are
-    # responsible for passing clean data.
-    # References:
-    #   * https://github.com/bottlepy/bottle/blob/99341ff3791b2e7e705d7373e71937e9018eb081/bottle.py#L2197-L2203  # noqa: E501
-    #   * https://github.com/FriedrichFroebel/brother_ql_web/issues/9
     parameters = request.params
     parameters.recode_unicode = False
     d = parameters.decode()  # UTF-8 decoded form data
 
-    try:
-        font_family = d.get("font_family").rpartition("(")[0].strip()
-        font_style = d.get("font_family").rpartition("(")[2].rstrip(")")
-    except AttributeError:
+    qr_data = d.get("qr_data", "")
+    font_family = d.get("font_family")
+    font_style = None
+    if font_family:
+        font_family = font_family.rpartition("(")[0].strip()
+        font_style = font_family.rpartition("(")[2].rstrip(")")
+    elif qr_data:
+        # QR code only: font not required
+        font_family = None
+        font_style = None
+    else:
         if should_be_file:
             font_family = ""
             font_style = ""
@@ -112,11 +110,18 @@ def get_label_parameters(
         "margin_left": int(d.get("margin_left", 35)),
         "margin_right": int(d.get("margin_right", 35)),
         "label_count": int(d.get("label_count", 1)),
-        "high_quality": bool(d.get("high_quality", False)),  # TODO: Enable by default.
+        "high_quality": bool(d.get("high_quality", False)),
         "vertical_align": d.get("vertical_align", "center"),
         "configuration": request.app.config["brother_ql_web.configuration"],
+        # QR code fields
+        "qr_data": qr_data,
+        "qr_size": int(d.get("qr_size", 120)),
+        "qr_x": int(d.get("qr_x", 30)),
+        "qr_y": int(d.get("qr_y", 40)),
+        "qr_error_correction": d.get("qr_error_correction", "M"),
+        "qr_margin": int(d.get("qr_margin", 4)),
+        "qr_rotation": int(d.get("qr_rotation", 0)),
     }
-
     return LabelParameters(**context)
 
 
@@ -148,6 +153,17 @@ def get_preview_image_file() -> bytes:
     else:
         bottle.response.set_header("Content-type", "image/png")
         return image_to_png_bytes(image)
+
+
+@bottle.post("/api/preview/qrcode")
+def get_preview_qrcode() -> bytes:
+    parameters = get_label_parameters(bottle.request)
+    if not parameters.qr_data:
+        bottle.response.status = 400
+        return b"Missing qr_data"
+    image = create_label_image(parameters=parameters)
+    bottle.response.set_header("Content-type", "image/png")
+    return image_to_png_bytes(image)
 
 
 @bottle.post("/api/print/text")  # type: ignore[misc]
@@ -203,6 +219,25 @@ def print_image() -> dict[str, bool | str]:
         configuration=cast(Configuration, get_config("brother_ql_web.configuration")),
     )
 
+    return _print(parameters=parameters, qlr=qlr)
+
+
+@bottle.post("/api/print/qrcode")
+def print_qrcode() -> dict[str, bool | str]:
+    return_dict: dict[str, bool | str] = {"success": False}
+    try:
+        parameters = get_label_parameters(bottle.request)
+    except (AttributeError, LookupError, ValueError) as e:
+        return_dict["error"] = str(e)
+        return return_dict
+    if not parameters.qr_data:
+        return_dict["error"] = "Please provide qr_data for the QR code"
+        return return_dict
+    qlr = generate_label(
+        parameters=parameters,
+        configuration=cast(Configuration, get_config("brother_ql_web.configuration")),
+        save_image_to="sample-out.png" if bottle.DEBUG else None,
+    )
     return _print(parameters=parameters, qlr=qlr)
 
 

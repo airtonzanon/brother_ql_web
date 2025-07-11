@@ -42,6 +42,7 @@ dependencies = [
     "bottle",
     "jinja2",
     "Pillow>=8",
+    "qrcode",
 ]
 
 [project.scripts]

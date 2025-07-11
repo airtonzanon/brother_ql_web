@@ -113,6 +113,38 @@
                             <span class="bi-printer-fill"></span> Print Text
                         </button>
                     </div>
+                    <!-- QR Code Section -->
+                    <hr/>
+                    <div class="mt-4">
+                        <h5><span class="bi-qr-code"></span> QR Code</h5>
+                        <label for="qrData">QR Code Data</label>
+                        <input id="qrData" class="form-control mb-2" type="text" placeholder="Enter text or URL for QR code">
+                        <label for="qrSize">QR Code Size (px)</label>
+                        <input id="qrSize" class="form-control mb-2" type="number" min="32" max="600" value="120">
+                        <label for="qrX">Horizontal Offset (px)</label>
+                        <input id="qrX" class="form-control mb-2" type="number" min="0" max="1000" value="30">
+                        <label for="qrY">Vertical Offset (px)</label>
+                        <input id="qrY" class="form-control mb-2" type="number" min="0" max="1000" value="40">
+                        <label for="qrErrorCorrection">Error Correction</label>
+                        <select id="qrErrorCorrection" class="form-control mb-2">
+                            <option value="L">L (7%)</option>
+                            <option value="M" selected>M (15%)</option>
+                            <option value="Q">Q (25%)</option>
+                            <option value="H">H (30%)</option>
+                        </select>
+                        <label for="qrMargin">Margin (modules)</label>
+                        <input id="qrMargin" class="form-control mb-2" type="number" min="0" max="10" value="4">
+                        <label for="qrRotation">Rotation (degrees)</label>
+                        <input id="qrRotation" class="form-control mb-2" type="number" min="0" max="359" value="0">
+                        <div class="d-grid gap-2 mt-2">
+                            <button id="previewQRButton" type="button" class="btn btn-info btn-lg mb-2" onClick="previewQR()">
+                                <span class="bi-eye"></span> Preview QR
+                            </button>
+                            <button id="printQRButton" type="button" class="btn btn-success btn-lg" onClick="printQR()">
+                                <span class="bi-qr-code"></span> Print QR
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -324,6 +356,88 @@
         );
     }
 
+    function buildQRFormData() {
+        const labelSize = getSelectedOption('labelSize');
+        const orientation = getSelectedRadioButton('orientation', 'standard');
+        const marginTop = getValue('marginTop');
+        const marginBottom = getValue('marginBottom');
+        const marginLeft = getValue('marginLeft');
+        const marginRight = getValue('marginRight');
+        const labelCount = getValue('labelCount');
+        const highQuality = isChecked('highQuality');
+        const verticalAlign = getSelectedRadioButton('fontVerticalAlign', 'center');
+        // QR fields
+        const qrData = getValue('qrData');
+        const qrSize = getValue('qrSize');
+        const qrX = getValue('qrX');
+        const qrY = getValue('qrY');
+        const qrErrorCorrection = getSelectedOption('qrErrorCorrection');
+        const qrMargin = getValue('qrMargin');
+        const qrRotation = getValue('qrRotation');
+
+        const formData = new FormData();
+        formData.append('qr_data', qrData);
+        formData.append('qr_size', qrSize);
+        formData.append('qr_x', qrX);
+        formData.append('qr_y', qrY);
+        formData.append('qr_error_correction', qrErrorCorrection);
+        formData.append('qr_margin', qrMargin);
+        formData.append('qr_rotation', qrRotation);
+        formData.append('label_size', labelSize);
+        formData.append('orientation', orientation);
+        formData.append('margin_top', marginTop);
+        formData.append('margin_bottom', marginBottom);
+        formData.append('margin_left', marginLeft);
+        formData.append('margin_right', marginRight);
+        formData.append('label_count', labelCount);
+        formData.append('high_quality', highQuality);
+        formData.append('vertical_align', verticalAlign);
+        return formData;
+    }
+
+    function previewQR() {
+        const formData = buildQRFormData();
+        const request = new XMLHttpRequest();
+        request.open('POST', '/api/preview/qrcode');
+        request.responseType = 'blob';
+        request.onload = function() {
+            if (request.status === 200) {
+                const url = URL.createObjectURL(request.response);
+                document.getElementById('previewImg').src = url;
+                document.getElementById('statusPanel').innerText = 'QR code preview updated.';
+            } else {
+                document.getElementById('statusPanel').innerText = 'Error: ' + request.responseText;
+            }
+        };
+        request.onerror = function() {
+            document.getElementById('statusPanel').innerText = 'Error: Could not preview QR code.';
+        };
+        request.send(formData);
+    }
+
+    function printQR() {
+        const formData = buildQRFormData();
+        const request = new XMLHttpRequest();
+        request.open('POST', '/api/print/qrcode');
+        request.onload = function() {
+            try {
+                const resp = JSON.parse(request.responseText);
+                if (resp.success) {
+                    document.getElementById('statusPanel').innerText = 'QR code sent to printer.';
+                } else {
+                    document.getElementById('statusPanel').innerText = 'Error: ' + (resp.error || 'Unknown error');
+                }
+            } catch (e) {
+                document.getElementById('statusPanel').innerText = 'Error: Invalid response from server.';
+            }
+        };
+        request.onerror = function() {
+            document.getElementById('statusPanel').innerText = 'Error: Could not print QR code.';
+        };
+        request.send(formData);
+    }
+
     preview();
+    window.onload = function() { preview(); };
 
 {% endblock %}

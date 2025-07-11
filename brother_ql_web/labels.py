@@ -40,6 +40,14 @@ class LabelParameters:
     # TODO: Not yet taken into account. The number of dots in each direction has to be
     #       doubled. The generator/calculation methods have to be updated accordingly.
     high_quality: bool = False
+    # QR code fields
+    qr_data: str = ""
+    qr_size: int = 120
+    qr_x: int = 30
+    qr_y: int = 40
+    qr_error_correction: str = "M"
+    qr_margin: int = 4
+    qr_rotation: int = 0
 
     @property
     def _label(self) -> Label:
@@ -168,6 +176,30 @@ def _determine_text_offsets(
 
 
 def create_label_image(parameters: LabelParameters) -> Image.Image:
+    # QR Code rendering
+    if parameters.qr_data:
+        import qrcode
+        from PIL import ImageOps
+        qr = qrcode.QRCode(
+            version=None,
+            error_correction=getattr(qrcode.constants, f'ERROR_CORRECT_{parameters.qr_error_correction.upper()}', qrcode.constants.ERROR_CORRECT_M),
+            box_size=10,
+            border=parameters.qr_margin,
+        )
+        qr.add_data(parameters.qr_data)
+        qr.make(fit=True)
+        qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+        # Resize QR code to requested size
+        qr_img = qr_img.resize((parameters.qr_size, parameters.qr_size), Image.LANCZOS)
+        # Rotate if needed
+        if parameters.qr_rotation:
+            qr_img = qr_img.rotate(parameters.qr_rotation, expand=True, fillcolor="white")
+        # Create label image and paste QR code
+        width, height = parameters.width, parameters.height
+        image = Image.new("RGB", (width, height), "white")
+        image.paste(qr_img, (parameters.qr_x, parameters.qr_y))
+        return image
+
     if parameters.image:
         image = Image.open(BytesIO(parameters.image))
 
